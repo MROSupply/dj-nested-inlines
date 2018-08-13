@@ -248,6 +248,9 @@ class NestedModelAdmin(ModelAdmin):
         if obj is None:
             raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
 
+        ModelForm = self.get_form(request, obj)
+        formsets = []
+        inline_instances = self.get_inline_instances(request, obj)
         if request.method == 'POST' and "_saveasnew" in request.POST:
             return self.add_view(
                 request,
