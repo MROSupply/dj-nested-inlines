@@ -30,6 +30,22 @@ class BaseNestedForm(NestedFormMixin, BaseForm):
     pass
 
 class NestedFormSetMixin(object):
+    def save_new_objects(self, commit=True):
+        # same as django's except in case when a form is not changed but the
+        # instance itself is not saved yet, we are not skipping saving
+        self.new_objects = []
+        for form in self.extra_forms:
+            if form.instance.pk and not form.has_changed():
+                continue
+            # If someone has marked an add form for deletion, don't save the
+            # object.
+            if self.can_delete and self._should_delete_form(form):
+                continue
+            self.new_objects.append(self.save_new(form, commit=commit))
+            if not commit:
+                self.saved_forms.append(form)
+        return self.new_objects
+
     def dependency_has_changed(self):
         for form in self.forms:
             if form.has_changed() or form.dependency_has_changed():
