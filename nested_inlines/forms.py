@@ -41,6 +41,11 @@ class NestedFormSetMixin(object):
             # object.
             if self.can_delete and self._should_delete_form(form):
                 continue
+
+            if not form.cleaned_data:
+                # its an empty form (shown as an extra) that has no errors
+                continue
+
             self.new_objects.append(self.save_new(form, commit=commit))
             if not commit:
                 self.saved_forms.append(form)
