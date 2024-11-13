@@ -1,7 +1,7 @@
 from django import VERSION as DJANGO_VERSION
 from django.contrib.admin.options import (ModelAdmin, InlineModelAdmin,
     csrf_protect_m, models, transaction, all_valid,
-    PermissionDenied, unquote, reverse)
+    PermissionDenied, unquote, reverse, IS_POPUP_VAR)
 from django.http import Http404
 from django.utils.html import escape
 # Fix to make Django 1.5 compatible, maintain backwards compatibility
@@ -222,7 +222,8 @@ class NestedModelAdmin(ModelAdmin):
         context = {
             'title': _('Add %s') % force_unicode(opts.verbose_name),
             'adminform': adminForm,
-            'is_popup': "_popup" in request.POST,
+            'is_popup': (IS_POPUP_VAR in request.POST or
+                      IS_POPUP_VAR in request.GET),
             'show_delete': False,
             'media': media,
             'inline_admin_formsets': inline_admin_formsets,
@@ -324,7 +325,8 @@ class NestedModelAdmin(ModelAdmin):
             'adminform': adminForm,
             'object_id': object_id,
             'original': obj,
-            'is_popup': "_popup" in request.POST,
+            'is_popup': (IS_POPUP_VAR in request.POST or
+                      IS_POPUP_VAR in request.GET),
             'media': media,
             'inline_admin_formsets': inline_admin_formsets,
             'errors': AdminErrorList(form, formsets),
