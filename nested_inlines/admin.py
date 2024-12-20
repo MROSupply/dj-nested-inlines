@@ -4,14 +4,9 @@ from django.contrib.admin.options import (ModelAdmin, InlineModelAdmin,
     PermissionDenied, unquote, reverse, IS_POPUP_VAR)
 from django.http import Http404
 from django.utils.html import escape
-# Fix to make Django 1.5 compatible, maintain backwards compatibility
-try:
-    from django.contrib.admin.options import force_unicode
-except ImportError:
-    from django.utils.encoding import force_text as force_unicode
 
 from django.contrib.admin.helpers import InlineAdminFormSet, AdminForm
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from nested_inlines.forms import BaseNestedModelForm, BaseNestedInlineFormSet
 from nested_inlines.helpers import AdminErrorList
@@ -28,21 +23,6 @@ class NestedModelAdmin(ModelAdmin):
         if not issubclass(self.form, BaseNestedModelForm):
             raise ValueError('self.form must to be an instance of BaseNestedModelForm')
         return super(NestedModelAdmin, self).get_form(request, obj, **kwargs)
-
-    def get_inline_instances(self, request, obj=None):
-        inline_instances = []
-        for inline_class in self.inlines:
-            inline = inline_class(self.model, self.admin_site)
-            if request:
-                if not (inline.has_add_permission(request) or
-                        inline.has_change_permission(request, obj) or
-                        inline.has_delete_permission(request, obj)):
-                    continue
-                if not inline.has_add_permission(request):
-                    inline.max_num = 0
-            inline_instances.append(inline)
-
-        return inline_instances
 
     def save_formset(self, request, form, formset, change):
         """
@@ -220,7 +200,7 @@ class NestedModelAdmin(ModelAdmin):
                 media = media + self.wrap_nested_inline_formsets(request, inline, formset)
 
         context = {
-            'title': _('Add %s') % force_unicode(opts.verbose_name),
+            'title': _('Add %s') % str(opts.verbose_name),
             'adminform': adminForm,
             'is_popup': (IS_POPUP_VAR in request.POST or
                       IS_POPUP_VAR in request.GET),
@@ -247,7 +227,7 @@ class NestedModelAdmin(ModelAdmin):
             raise PermissionDenied
 
         if obj is None:
-            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': force_unicode(opts.verbose_name), 'key': escape(object_id)})
+            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {'name': str(opts.verbose_name), 'key': escape(object_id)})
 
         ModelForm = self.get_form(request, obj)
         formsets = []
@@ -318,10 +298,12 @@ class NestedModelAdmin(ModelAdmin):
             inline_admin_formsets.append(inline_admin_formset)
             media = media + inline_admin_formset.media
             if inline.inlines:
-                media = media + self.wrap_nested_inline_formsets(request, inline, formset)
+                other_media = self.wrap_nested_inline_formsets(request, inline, formset)
+                if other_media:
+                    media = media + other_media
 
         context = {
-            'title': _('Change %s') % force_unicode(opts.verbose_name),
+            'title': _('Change %s') % str(opts.verbose_name),
             'adminform': adminForm,
             'object_id': object_id,
             'original': obj,
@@ -361,21 +343,6 @@ class NestedInlineModelAdmin(InlineModelAdmin):
     inlines = []
     formset = BaseNestedInlineFormSet
     form = BaseNestedModelForm
-
-    def get_inline_instances(self, request, obj=None):
-        inline_instances = []
-        for inline_class in self.inlines:
-            inline = inline_class(self.model, self.admin_site)
-            if request:
-                if not (inline.has_add_permission(request) or
-                        inline.has_change_permission(request, obj) or
-                        inline.has_delete_permission(request, obj)):
-                    continue
-                if not inline.has_add_permission(request):
-                    inline.max_num = 0
-            inline_instances.append(inline)
-
-        return inline_instances
 
     def get_formsets(self, request, obj=None):
         for inline in self.get_inline_instances(request, obj):

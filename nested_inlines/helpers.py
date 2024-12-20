@@ -1,6 +1,5 @@
 import django.contrib.admin.helpers
 from django.contrib.admin.helpers import InlineAdminFormSet
-from django.utils import six
 
 class AdminErrorList(django.contrib.admin.helpers.AdminErrorList):
     """
