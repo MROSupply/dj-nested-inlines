@@ -344,6 +344,9 @@ class NestedInlineModelAdmin(InlineModelAdmin):
     formset = BaseNestedInlineFormSet
     form = BaseNestedModelForm
 
+    def get_inline_instances(self, request, obj=None):
+        return ModelAdmin.get_inline_instances(self, request, obj)
+
     def get_formsets(self, request, obj=None):
         for inline in self.get_inline_instances(request, obj):
             yield inline.get_formset(request, obj)
