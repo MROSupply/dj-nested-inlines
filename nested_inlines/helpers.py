@@ -20,7 +20,7 @@ class AdminErrorList(django.contrib.admin.helpers.AdminErrorList):
 
         self.extend(formset.non_form_errors())
         for errors_in_inline_form in formset.errors:
-            self.extend(list(six.itervalues(errors_in_inline_form)))
+            self.extend(list(errors_in_inline_form.values()))
 
         #support for nested formsets
         for form in formset:
