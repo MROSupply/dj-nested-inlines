@@ -197,7 +197,9 @@ class NestedModelAdmin(ModelAdmin):
             inline_admin_formsets.append(inline_admin_formset)
             media = media + inline_admin_formset.media
             if inline.inlines:
-                media = media + self.wrap_nested_inline_formsets(request, inline, formset)
+                other_media = self.wrap_nested_inline_formsets(request, inline, formset)
+                if other_media:
+                    media = media + other_media
 
         context = {
             'title': _('Add %s') % str(opts.verbose_name),
