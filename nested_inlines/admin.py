@@ -2,6 +2,7 @@ from django import VERSION as DJANGO_VERSION
 from django.contrib.admin.options import (ModelAdmin, InlineModelAdmin,
     csrf_protect_m, models, transaction, all_valid,
     PermissionDenied, unquote, reverse, IS_POPUP_VAR)
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.utils.html import escape
 
@@ -164,7 +165,7 @@ class NestedModelAdmin(ModelAdmin):
             for k in initial:
                 try:
                     f = opts.get_field(k)
-                except models.FieldDoesNotExist:
+                except ObjectDoesNotExist:
                     continue
                 if isinstance(f, models.ManyToManyField):
                     initial[k] = initial[k].split(",")
