@@ -104,7 +104,7 @@ class NestedModelAdmin(ModelAdmin):
     def all_valid_with_nesting(self, formsets):
         """Recursively validate all nested formsets
         """
-        if not all_valid(formsets):
+        if not all_valid([i for i in formsets if i.is_bound]):
             return False
         for formset in formsets:
             if not formset.is_bound:
